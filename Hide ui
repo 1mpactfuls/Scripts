@@ -1,0 +1,28 @@
+local localPlayer = game:GetService("Players").LocalPlayer
+local savedStates = {}
+
+-- Save original states first
+for _, gui in pairs(gethui():GetDescendants()) do
+    pcall(function()
+        savedStates[gui] = gui.Visible
+    end)
+end
+
+localPlayer.Chatted:Connect(function(message)
+    local msg = string.lower(message)
+    if msg == "hide" then
+        for _, gui in pairs(gethui():GetDescendants()) do
+            pcall(function()
+                gui.Visible = false
+            end)
+        end
+    elseif msg == "s" then
+        for _, gui in pairs(gethui():GetDescendants()) do
+            pcall(function()
+                if savedStates[gui] ~= nil then
+                    gui.Visible = savedStates[gui]
+                end
+            end)
+        end
+    end
+end)

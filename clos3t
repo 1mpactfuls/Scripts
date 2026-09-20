@@ -1,0 +1,194 @@
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/NICKISBAD/Nick-s-Modded-KAVO-Lib/main/Nick'sModdedKavoLib.lua"))()
+local Window = Library.CreateLib("Peaky Blinders", "Serpent")
+
+local MainTab = Window:NewTab("Gun Slinger")
+local ReachSection = MainTab:NewSection("Thomas shelby")
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/NICKISBAD/Nick-s-Modded-KAVO-Lib/main/Nick'sModdedKavoLib.lua"))()
+local Window = Library.CreateLib("Peaky Blinders", "Serpent")
+
+local MainTab = Window:NewTab("Gun Slinger")
+local ReachSection = MainTab:NewSection("Thomas shelby")
+local WhitelistTab = Window:NewTab("Whitelist")
+local WhitelistSection = WhitelistTab:NewSection("Player Whitelist")
+
+-- Variables
+local reachEnabled = false
+local reachRange = 5
+local visualizerEnabled = true
+local whitelist = {}
+local plr = game.Players.LocalPlayer
+
+-- Visualizer
+local visualizer = Instance.new("Part")
+visualizer.Anchored = true
+visualizer.CanCollide = false
+visualizer.Transparency = 0.5
+visualizer.Shape = Enum.PartType.Ball
+visualizer.Color = Color3.fromRGB(76, 76, 255)
+visualizer.Material = Enum.Material.Neon
+visualizer.Name = "ReachVisualizer"
+
+-- GUI Controls
+ReachSection:NewToggle("Enable Reach", "Toggle reach script", function(state)
+	reachEnabled = state
+	if not state then visualizer.Parent = nil end
+end)
+
+ReachSection:NewTextBox("Reach Distance", "How far the reach goes", function(txt)
+	local val = tonumber(txt)
+	if val then reachRange = val end
+end)
+
+ReachSection:NewToggle("Show Visualizer", "Toggle visualizer sphere", function(state)
+	visualizerEnabled = state
+end)
+
+-- Helper: Partial name match
+local function findMatchingPlayers(input)
+	local matches = {}
+	local inputLower = string.lower(input)
+	for _, p in ipairs(game.Players:GetPlayers()) do
+		if string.find(string.lower(p.Name), inputLower) or string.find(string.lower(p.DisplayName), inputLower) then
+			table.insert(matches, p)
+		end
+	end
+	return matches
+end
+
+-- Whitelist Input with Partial & Display name support
+WhitelistSection:NewTextBox("Add to Whitelist", "Partial name or display name", function(txt)
+	local matches = findMatchingPlayers(txt)
+	for _, p in ipairs(matches) do
+		whitelist[p.Name] = true
+		print("Whitelisted:", p.Name)
+	end
+end)
+
+WhitelistSection:NewTextBox("Remove from Whitelist", "Partial name or display name", function(txt)
+	local matches = findMatchingPlayers(txt)
+	for _, p in ipairs(matches) do
+		whitelist[p.Name] = nil
+		print("Un-whitelisted:", p.Name)
+	end
+end)
+
+-- Get character parts for targeting
+local function getTargetParts()
+	local parts = {}
+	for _, p in pairs(game.Players:GetPlayers()) do
+		if p ~= plr and not whitelist[p.Name] and p.Character then
+			for _, part in pairs(p.Character:GetChildren()) do
+				if part:IsA("BasePart") then
+					table.insert(parts, part)
+				end
+			end
+		end
+	end
+	return parts
+end
+
+-- Trigger touch effects
+local function onHit(hit, handle)
+	local human = hit.Parent:FindFirstChildOfClass("Humanoid")
+	if human and hit:IsDescendantOf(workspace) then
+		for _, part in ipairs(hit.Parent:GetChildren()) do
+			if part:IsA("BasePart") then
+				firetouchinterest(part, handle, 0)
+				firetouchinterest(part, handle, 1)
+			end
+		end
+	end
+end
+
+-- Main Loop
+game:GetService("RunService").RenderStepped:Connect(function()
+	if not reachEnabled then return end
+
+	local tool = plr.Character and plr.Character:FindFirstChildOfClass("Tool")
+	if not tool then
+		visualizer.Parent = nil
+		return
+	end
+
+	local handle = tool:FindFirstChild("Handle")
+	if not handle then return end
+
+	if visualizerEnabled then
+		visualizer.Parent = workspace
+		visualizer.Size = Vector3.new(reachRange, reachRange, reachRange)
+		visualizer.CFrame = handle.CFrame
+	else
+		visualizer.Parent = nil
+	end
+
+	for _, part in ipairs(getTargetParts()) do
+		if (part.Position - handle.Position).Magnitude <= reachRange then
+			onHit(part, handle)
+		end
+	end
+end)
+
+
+
+
+
+local isUiVisible = true  -- Default: shown
+
+local function showLogo()
+    if not isUiVisible then
+        Library:ToggleUI()
+        isUiVisible = true
+        print("Kavo UI shown")
+    end
+end
+
+local function hideLogo()
+    if isUiVisible then
+        Library:ToggleUI()
+        isUiVisible = false
+        print("Kavo UI hidden")
+    end
+end
+
+TextChatService.OnIncomingMessage = function(message)
+    if message.TextSource and message.TextSource.UserId == player.UserId then
+        local text = message.Text:lower()
+        if text == "s" then
+            showLogo()
+        elseif text == "h" then
+            hideLogo()
+        end
+    end
+end
+
+
+
+
+local isUiVisible = true  -- Default: shown
+
+local function showLogo()
+    if not isUiVisible then
+        Library:ToggleUI()
+        isUiVisible = true
+        print("Kavo UI shown")
+    end
+end
+
+local function hideLogo()
+    if isUiVisible then
+        Library:ToggleUI()
+        isUiVisible = false
+        print("Kavo UI hidden")
+    end
+end
+
+TextChatService.OnIncomingMessage = function(message)
+    if message.TextSource and message.TextSource.UserId == player.UserId then
+        local text = message.Text:lower()
+        if text == "s" then
+            showLogo()
+        elseif text == "h" then
+            hideLogo()
+        end
+    end
+end

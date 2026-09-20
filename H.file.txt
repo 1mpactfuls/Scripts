@@ -1,0 +1,1 @@
+loadstring(game:HttpGet("https://raw.githubusercontent.com/fadawd/Kaizen/refs/heads/main/Makihub"))()

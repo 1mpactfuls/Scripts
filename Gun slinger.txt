@@ -1,0 +1,148 @@
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/NICKISBAD/Nick-s-Modded-KAVO-Lib/main/Nick'sModdedKavoLib.lua"))()
+local Window = Library.CreateLib("Peaky Blinders", "Serpent")
+
+local MainTab = Window:NewTab("Gun Slinger")
+local ReachSection = MainTab:NewSection("Thomas shelby")
+
+ReachSection:NewButton("Aimlock", "hello", function()
+local Camera = game:GetService("Workspace").CurrentCamera
+local Players = game:GetService("Players")
+local LocalPlayer = game:GetService("Players").LocalPlayer
+
+-- Aimbot is enabled by default
+getgenv().AimbotToggle = false
+
+local function GetClosestPlayer()
+   local ClosestPlayer = nil
+   local FarthestDistance = math.huge
+
+   for i, v in pairs(Players.GetPlayers(Players)) do
+       if v ~= LocalPlayer and v.Character and v.Character.FindFirstChild(v.Character, "HumanoidRootPart") then
+           local DistanceFromPlayer = (LocalPlayer.Character.HumanoidRootPart.Position - v.Character.HumanoidRootPart.Position).Magnitude
+
+           if DistanceFromPlayer < FarthestDistance then
+               FarthestDistance = DistanceFromPlayer
+               ClosestPlayer = v
+           end
+       end
+   end
+
+   if ClosestPlayer then
+       return ClosestPlayer
+   end
+end
+
+local GameMetaTable = getrawmetatable(game)
+local OldGameMetaTableNamecall = GameMetaTable.__namecall
+setreadonly(GameMetaTable, false)
+
+GameMetaTable.__namecall = newcclosure(function(object, ...)
+   local NamecallMethod = getnamecallmethod()
+   local Arguments = {...}
+
+   if tostring(NamecallMethod) == "FindPartOnRayWithIgnoreList" then
+       local ClosestPlayer = GetClosestPlayer()
+       
+       if getgenv().AimbotToggle and ClosestPlayer and ClosestPlayer.Character then
+           Arguments[1] = Ray.new(Camera.CFrame.Position, (ClosestPlayer.Character.Head.Position - Camera.CFrame.Position).Unit * (Camera.CFrame.Position - ClosestPlayer.Character.Head.Position).Magnitude)
+       end
+   end
+
+   return OldGameMetaTableNamecall(object, unpack(Arguments))
+end)
+
+setreadonly(GameMetaTable, true)
+end)
+
+ReachSection:NewToggle("Turn It On", "ToggleInfo", function(state)
+    if state then
+        getgenv().AimbotToggle = not getgenv().AimbotToggle
+print("Aimbot is now", getgenv().AimbotToggle and "Enabled" or "Disabled")
+    else
+        getgenv().AimbotToggle = not getgenv().AimbotToggle
+print("Aimbot is now", getgenv().AimbotToggle and "Enabled" or "Disabled")
+    end
+end)
+
+ReachSection:NewButton("Hitbox", "ButtonInfo", function()
+    local toggle = true -- Toggle enabled by default
+
+local function expandHeadIfExists(animal)
+	if not toggle then return end
+
+	if animal:FindFirstChild("Head") and animal.Head:IsA("BasePart") then
+		local head = animal.Head
+
+		if not head:FindFirstChild("OriginalSize") then
+			local tag = Instance.new("Vector3Value")
+			tag.Name = "OriginalSize"
+			tag.Value = head.Size
+			tag.Parent = head
+		end
+
+		head.Size = Vector3.new(5, 5, 5)
+		head.Transparency = 0.4
+		head.Material = Enum.Material.Neon
+		head.BrickColor = BrickColor.new("Bright red")
+		head.CanCollide = false
+	end
+end
+
+-- Apply to existing animals
+for _, animal in ipairs(workspace.Animals:GetChildren()) do
+	expandHeadIfExists(animal)
+end
+
+-- Update on new animals
+workspace.Animals.ChildAdded:Connect(function(animal)
+	animal.AncestryChanged:Wait()
+	task.wait(1)
+	expandHeadIfExists(animal)
+end)
+
+end)
+
+ReachSection:NewToggle("Hitbox toggle", "ToggleInfo", function(state)
+    if state then
+        -- Toggle function you can call from a button or keybind
+function ToggleHeadExpansion()
+	toggle = not toggle
+	print("Head expansion is now", toggle and "ON" or "OFF")
+end
+    else
+        -- Toggle function you can call from a button or keybind
+function ToggleHeadExpansion()
+	toggle = not toggle
+	print("Head expansion is now", toggle and "ON" or "OFF")
+end
+    end
+end)
+
+local isUiVisible = true  -- Default: shown
+
+local function showLogo()
+    if not isUiVisible then
+        Library:ToggleUI()
+        isUiVisible = true
+        print("Kavo UI shown")
+    end
+end
+
+local function hideLogo()
+    if isUiVisible then
+        Library:ToggleUI()
+        isUiVisible = false
+        print("Kavo UI hidden")
+    end
+end
+
+TextChatService.OnIncomingMessage = function(message)
+    if message.TextSource and message.TextSource.UserId == player.UserId then
+        local text = message.Text:lower()
+        if text == "s" then
+            showLogo()
+        elseif text == "h" then
+            hideLogo()
+        end
+    end
+end

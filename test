@@ -1,0 +1,12 @@
+local hui = gethui()
+for _, v in pairs(hui:GetDescendants()) do
+    if pcall(function() return v.Visible end) then
+        print("Name:", v.Name, "| Class:", v.ClassName)
+        for _, prop in pairs({"Text", "Image", "BackgroundColor3", "Size", "Position"}) do
+            if pcall(function() return v[prop] end) then
+                print(prop .. ":", v[prop])
+            end
+        end
+        print("---")
+    end
+end
