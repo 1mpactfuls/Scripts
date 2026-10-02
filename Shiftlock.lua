@@ -1,0 +1,1 @@
+loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Shiftlock-for-Beta-by-NPC_PlayersNoob-226740"))()
